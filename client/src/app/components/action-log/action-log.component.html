@@ -1,0 +1,7 @@
+﻿<div class="log-panel">
+  <p class="kicker">Journal d'actions</p>
+  <div class="log-list">
+    <div *ngFor="let entry of entries" class="log-entry">{{ entry }}</div>
+    <p *ngIf="entries.length === 0" class="muted-text">Aucune action pour le moment.</p>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="app-shell">
+  <div class="app-wrap">
+    <section class="hero hero-compact">
+      <div class="hero-center">
+        <p class="kicker">Naval Brain Arena</p>
+        <h1 class="hero-title">Naval Brain Arena</h1>
+      </div>
+    </section>
+
+    <app-lobby
+      *ngIf="!state || state.phase === 'home' || state.phase === 'matching'"
+      [state]="state"
+      [(username)]="username"
+      [selectedAvatarId]="selectedAvatarId"
+      [uploadedAvatarDataUrl]="uploadedAvatarDataUrl"
+      [avatarOptions]="avatarOptions"
+      (avatarChange)="updateAvatar($event)"
+      (uploadedAvatarChange)="updateUploadedAvatar($event)"
+      (startRequested)="start()"
+      (createFriendRequested)="createFriendMatch()"
+      (joinFriendRequested)="joinFriendMatch($event)">
+    </app-lobby>
+
+    <section *ngIf="showVersusIntro && state?.phase === 'battle'" class="panel versus-intro-panel">
+      <div class="versus-intro-stage">
+        <div class="versus-intro-card versus-intro-blue">
+          <p class="player-team player-team-blue">{{ state?.selfTeam }}</p>
+          <h2 class="versus-intro-name">{{ state?.username }}</h2>
+        </div>
+
+        <div class="versus-intro-burst">VS</div>
+
+        <div class="versus-intro-card versus-intro-red">
+          <p class="player-team player-team-red">{{ state?.selfTeam === 'BLUE' ? 'RED' : 'BLUE' }}</p>
+          <h2 class="versus-intro-name">{{ state?.opponentName }}</h2>
+        </div>
+      </div>
+    </section>
+
+    <app-game-board
+      *ngIf="(state?.phase === 'battle' || state?.phase === 'gameover') && !showVersusIntro"
+      [state]="state"
+      (attackCoordinate)="attack($event.row, $event.col)"
+      (emoteSelected)="gameService.sendEmote($event)"
+      (quitGame)="gameService.leaveGame()"
+      (playAgain)="playAgain()">
+    </app-game-board>
+  </div>
+</div>

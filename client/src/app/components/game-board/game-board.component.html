@@ -1,0 +1,110 @@
+<div class="single-battle-shell">
+  <section class="board-panel battle-unified-panel">
+    <div class="duel-strip">
+      <section class="player-card" [class.player-card-active]="state?.activeTeam === state?.selfTeam">
+        <p class="player-team" [class]="selfTeamClass()">{{ state?.selfTeam }}</p>
+        <div class="player-name-row">
+          <div class="player-avatar" *ngIf="state?.selfAvatar" [style.--avatar-tint]="state?.selfAvatar?.tint">
+            <img *ngIf="state?.selfAvatar?.imageDataUrl; else selfAvatarIcon" class="player-avatar-image" [src]="state?.selfAvatar?.imageDataUrl" alt="Ton avatar" />
+            <ng-template #selfAvatarIcon>{{ state?.selfAvatar?.icon }}</ng-template>
+          </div>
+          <h2 class="player-name">{{ state?.username }}</h2>
+          <div *ngIf="selfActiveEmote" class="player-emote-burst">{{ emoteIcon(selfActiveEmote) }}</div>
+        </div>
+        <p class="player-subline">Absences {{ state?.selfSkips || 0 }}/3</p>
+        <div *ngIf="selfKoCount() > 0" [class]="selfKoBadgeClass()">KO {{ selfKoCount() }}</div>
+      </section>
+
+      <div class="duel-center">
+        <p class="duel-vs">VS</p>
+        <p class="duel-status">{{ activePlayerName() }}</p>
+      </div>
+
+      <section class="player-card" [class.player-card-active]="state?.activeTeam === enemyTeamLabel()">
+        <p class="player-team" [class]="enemyTeamClass()">{{ enemyTeamLabel() }}</p>
+        <div class="player-name-row">
+          <div class="player-avatar" *ngIf="state?.opponentAvatar" [style.--avatar-tint]="state?.opponentAvatar?.tint">
+            <img *ngIf="state?.opponentAvatar?.imageDataUrl; else enemyAvatarIcon" class="player-avatar-image" [src]="state?.opponentAvatar?.imageDataUrl" alt="Avatar ennemi" />
+            <ng-template #enemyAvatarIcon>{{ state?.opponentAvatar?.icon }}</ng-template>
+          </div>
+          <h2 class="player-name">{{ state?.opponentName }}</h2>
+          <div *ngIf="enemyActiveEmote" class="player-emote-burst player-emote-burst-enemy">{{ emoteIcon(enemyActiveEmote) }}</div>
+        </div>
+        <p class="player-subline">Absences {{ state?.enemySkips || 0 }}/3</p>
+        <div *ngIf="enemyKoCount() > 0" [class]="enemyKoBadgeClass()">KO {{ enemyKoCount() }}</div>
+      </section>
+    </div>
+
+    <div class="battle-main-zone" [class.battle-main-zone-finished]="state?.phase === 'gameover'" [class.battle-main-zone-announcing]="sunkAnnouncement">
+      <div class="grid-shell combo-grid-shell battle-grid-shell">
+        <div class="emote-bar" *ngIf="state?.phase === 'battle'">
+          <div class="emote-actions">
+            <button
+              *ngFor="let emote of emoteOptions"
+              type="button"
+              class="emote-button"
+              (click)="sendEmote(emote.key)">
+              {{ emote.icon }}
+            </button>
+          </div>
+          <button type="button" class="secondary-button quit-button" (click)="quit()">Quitter</button>
+        </div>
+
+        <div class="turn-banner turn-banner-board" [class.turn-banner-active]="state?.isMyTurn">
+          <div>
+            <p class="turn-banner-label">{{ activePlayerName() }}</p>
+            <p class="turn-banner-text">Le compteur descend de 10 a 0 pour chaque tour, que ce soit le tien ou celui de l'adversaire.</p>
+          </div>
+          <div class="turn-countdown">
+            <span class="turn-countdown-number">{{ liveSecondsLeft }}</span>
+          </div>
+        </div>
+
+        <div class="grid-board combo-grid-board" [style.gridTemplateColumns]="'34px repeat(' + (state?.colLabels?.length || 0) + ', 52px)'">
+          <div></div>
+          <div *ngFor="let label of state?.colLabels || []" class="axis-head battle-axis-head" [style.height.px]="52">{{ label }}</div>
+
+          <ng-container *ngFor="let rowLabel of state?.rowLabels || []; let row = index">
+            <div class="axis-side battle-axis-side" [style.height.px]="52">{{ rowLabel }}</div>
+            <button
+              *ngFor="let colLabel of state?.colLabels || []; let col = index"
+              type="button"
+              [class]="cellClasses(row, col)"
+              [disabled]="!canTarget(row, col)"
+              [title]="rowLabel + colLabel"
+              (click)="fireAt(row, col)">
+              <span class="combo-own-marker" *ngIf="ownText(row, col)">{{ ownText(row, col) }}</span>
+              <span [class]="incomingShotClass(row, col)" *ngIf="incomingShotText(row, col)">{{ incomingShotText(row, col) }}</span>
+              <span [class]="enemyMarkerClass(row, col)">{{ enemyText(row, col) }}</span>
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
+      <div *ngIf="state?.phase === 'gameover'" class="battle-finish-overlay">
+        <div class="battle-finish-card" [class.battle-finish-win]="state?.winner === state?.selfTeam" [class.battle-finish-lose]="state?.winner !== state?.selfTeam">
+          <p class="battle-finish-kicker">{{ state?.winner === state?.selfTeam ? 'Victoire' : 'Defaite' }}</p>
+          <h3 class="battle-finish-title">{{ gameOverTitle() }}</h3>
+          <div class="battle-finish-actions">
+            <button type="button" class="primary-button" (click)="replay()">
+              <span class="pi pi-refresh"></span>
+              <span>Rejouer</span>
+            </button>
+            <button type="button" class="secondary-button" (click)="quit()">
+              <span class="pi pi-times"></span>
+              <span>Quitter</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="sunkAnnouncement && state?.phase === 'battle'" class="battle-finish-overlay battle-sunk-overlay">
+        <div class="battle-finish-card battle-sunk-card" [class.battle-sunk-card-enemy]="sunkAnnouncement.tone === 'enemy'" [class.battle-sunk-card-own]="sunkAnnouncement.tone === 'own'">
+          <p class="battle-finish-kicker">{{ sunkAnnouncement.tone === 'enemy' ? 'Impact confirme' : 'Alerte flotte' }}</p>
+          <h3 class="battle-finish-title">{{ sunkAnnouncement.message }}</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

@@ -1,0 +1,37 @@
+﻿<div>
+  <div class="board-header">
+    <h3 class="board-title">{{ title }}</h3>
+    <span *ngIf="clickable" class="helper-pill">Cliquer pour tirer</span>
+  </div>
+
+  <div class="grid-shell">
+    <div class="grid-board" [style.gridTemplateColumns]="'26px repeat(' + colLabels.length + ', ' + cellSize + 'px)'">
+      <div></div>
+      <div *ngFor="let label of colLabels" class="axis-head" [style.height.px]="cellSize">{{ label }}</div>
+
+      <ng-container *ngFor="let row of rows; let rowIndex = index">
+        <div class="axis-side" [style.height.px]="cellSize">{{ rowLabels[rowIndex] }}</div>
+        <button
+          *ngFor="let cell of row"
+          type="button"
+          class="grid-button"
+          [style.width.px]="cellSize"
+          [style.height.px]="cellSize"
+          [class.hit]="cell.result === 'hit'"
+          [class.miss]="cell.result === 'miss'"
+          [class.ship]="cell.hasShip && !hideShips && cell.result === 'unknown'"
+          [class.targetable]="clickable && !disabled && !cell.attacked"
+          [disabled]="disabled || cell.attacked"
+          [title]="cell.label"
+          (click)="selectCell(cell)">
+          {{ cellText(cell) }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+
+  <div *ngIf="clickable" class="legend-row">
+    <span class="legend-chip legend-hit">X = touche</span>
+    <span class="legend-chip legend-miss">V = vide</span>
+  </div>
+</div>

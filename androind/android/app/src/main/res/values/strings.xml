@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">androind</string>
+    <string name="title_activity_main">androind</string>
+    <string name="package_name">com.navalbrainarena.mobile</string>
+    <string name="custom_url_scheme">com.navalbrainarena.mobile</string>
+</resources>

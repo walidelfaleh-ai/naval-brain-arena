@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: naval-brain-arena-server
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true

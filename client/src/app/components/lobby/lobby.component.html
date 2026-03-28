@@ -1,0 +1,112 @@
+<div class="shell-grid lobby-layout-simple">
+  <section class="panel lobby-panel-main">
+    <div *ngIf="state?.phase !== 'matching'; else matchingView" class="lobby-hero">
+      <p class="kicker">Bataille navale comique</p>
+      <h2 class="hero-title lobby-title">Bateau Blue VS Bateau Rouge</h2>
+
+      <div class="lobby-battle-art" aria-hidden="true">
+        <div class="battle-ship battle-ship-blue">
+          <span class="battle-ship-smoke"></span>
+          <span class="battle-ship-body"></span>
+        </div>
+        <div class="battle-burst">VS</div>
+        <div class="battle-ship battle-ship-red">
+          <span class="battle-ship-smoke"></span>
+          <span class="battle-ship-body"></span>
+        </div>
+      </div>
+
+      <div class="form-stack lobby-form" *ngIf="lobbyStep === 'home'; else joinFriendView">
+        <input
+          type="text"
+          maxlength="18"
+          class="game-input"
+          [ngModel]="username"
+          (ngModelChange)="updateUsername($event)"
+          placeholder="Capitaine Sam" />
+
+        <div class="avatar-picker">
+          <button
+            *ngIf="uploadedAvatarDataUrl"
+            type="button"
+            class="avatar-option avatar-option-upload avatar-option-selected"
+            (click)="clearUploadedAvatar()">
+            <img class="avatar-option-image" [src]="uploadedAvatarDataUrl" alt="Avatar importe" />
+          </button>
+
+          <button
+            *ngFor="let avatar of avatarOptions"
+            type="button"
+            class="avatar-option"
+            [class.avatar-option-selected]="selectedAvatarId === avatar.id"
+            [style.--avatar-tint]="avatar.tint"
+            (click)="selectAvatar(avatar.id)">
+            <span class="avatar-option-icon">{{ avatar.icon }}</span>
+          </button>
+        </div>
+
+        <label class="avatar-upload-button">
+          <input type="file" accept="image/*" class="avatar-upload-input" (change)="onAvatarFileSelected($event)" />
+          <span class="pi pi-image"></span>
+          <span>{{ uploadedAvatarDataUrl ? 'Changer la photo' : 'Choisir une photo' }}</span>
+        </label>
+
+        <button type="button" class="primary-button lobby-start-button" [disabled]="!username.trim()" (click)="start()">
+          <span class="pi pi-play"></span>
+          <span>Jouer</span>
+        </button>
+
+        <button type="button" class="primary-button lobby-start-button lobby-friend-create-button" [disabled]="!username.trim()" (click)="createFriendMatch()">
+          <span class="pi pi-users"></span>
+          <span>Jouer avec amis</span>
+        </button>
+
+        <button type="button" class="primary-button lobby-start-button lobby-friend-join-button" [disabled]="!username.trim()" (click)="openJoinFriend()">
+          <span class="pi pi-link"></span>
+          <span>Rejoindre ami</span>
+        </button>
+      </div>
+
+      <ng-template #joinFriendView>
+        <div class="form-stack lobby-form join-friend-panel">
+          <p class="friend-step-kicker">Match prive</p>
+          <h3 class="join-friend-title">Entre le code de ton ami</h3>
+          <input
+            type="text"
+            maxlength="6"
+            class="game-input friend-code-input"
+            [(ngModel)]="friendCode"
+            placeholder="ABC123" />
+          <button type="button" class="primary-button lobby-start-button" [disabled]="!username.trim() || friendCode.trim().length !== 6" (click)="joinFriendMatch()">
+            <span class="pi pi-link"></span>
+            <span>Entrer dans la salle</span>
+          </button>
+          <button type="button" class="primary-button lobby-start-button lobby-back-button" (click)="backToHome()">
+            <span class="pi pi-arrow-left"></span>
+            <span>Retour</span>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+
+    <ng-template #matchingView>
+      <div class="matching-box">
+        <div class="matching-visual">
+          <p-progressSpinner ariaLabel="Searching"></p-progressSpinner>
+          <div class="matching-radar">
+            <span class="matching-radar-ring matching-radar-ring-1"></span>
+            <span class="matching-radar-ring matching-radar-ring-2"></span>
+            <span class="matching-radar-ring matching-radar-ring-3"></span>
+            <span class="matching-radar-dot"></span>
+          </div>
+          <h2 class="hero-title matching-title">{{ state?.matchMode === 'private' ? 'Salle ami' : 'Recherche en cours' }}</h2>
+          <p class="matching-player">{{ state?.username }}</p>
+          <div *ngIf="state?.matchMode === 'private' && state?.matchCode" class="friend-code-card">
+            <p class="friend-code-label">Code ami</p>
+            <p class="friend-code-value">{{ state?.matchCode }}</p>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </section>
+</div>
