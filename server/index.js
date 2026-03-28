@@ -913,13 +913,6 @@ function resolveAttack(game, attackingTeam, row, col) {
     return;
   }
 
-  if (defendingBoard.cells[row][col].attacked) {
-    const attackerSocket = io.sockets.sockets.get(attacker.socketId);
-    attackerSocket?.emit('serverMessage', `Cell ${coordinate} was already targeted.`);
-    broadcastGameState(game);
-    return;
-  }
-
   game.lastAttackByTeam[attackingTeam] = { row, col };
 
   clearTurnTimer(game);
@@ -942,9 +935,10 @@ function resolveAttack(game, attackingTeam, row, col) {
     const targetCell = latestDefendingBoard.cells[row][col];
     let sunkShip = null;
 
-    targetCell.attacked = true;
-
-    if (targetCell.shipId) {
+    if (targetCell.attacked) {
+      addLog(latest, `${attacker.username} fired again at ${coordinate} and wastes the turn.`);
+    } else if (targetCell.shipId) {
+      targetCell.attacked = true;
       const ship = latestDefendingBoard.ships.find((item) => item.id === targetCell.shipId);
       ship.hits += 1;
       addLog(latest, `${attacker.username} hit ${coordinate}.`);
@@ -959,6 +953,7 @@ function resolveAttack(game, attackingTeam, row, col) {
         rememberBotHit(latest, row, col, Boolean(sunkShip));
       }
     } else {
+      targetCell.attacked = true;
       addLog(latest, `${attacker.username} missed at ${coordinate}.`);
     }
 

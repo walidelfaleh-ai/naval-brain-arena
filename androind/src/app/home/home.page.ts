@@ -218,7 +218,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.state?.isMyTurn &&
       !this.state?.resolvingAttack &&
       enemy &&
-      !enemy.attacked
+      !(this.state.lastSelfAttack?.row === row && this.state.lastSelfAttack?.col === col)
     );
   }
 
