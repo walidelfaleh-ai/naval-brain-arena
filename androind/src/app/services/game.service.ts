@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { BehaviorSubject } from 'rxjs';
-import { EmoteMessage, GameState } from '../models/game-state.model';
+import { AttackWindup, EmoteMessage, GameState } from '../models/game-state.model';
 import { SocketService } from './socket.service';
 
 interface MatchAvatarPayload {
@@ -37,6 +37,7 @@ export class GameService {
     enemyFleetSummary: [],
     emotes: [],
     incomingEmoteBurst: null,
+    incomingAttackWindup: null,
     lastSelfAttack: null,
     turnSecondsLeft: 10,
     selfSkips: 0,
@@ -101,7 +102,8 @@ export class GameService {
       this.stateSubject.next({
         ...this.stateSubject.value,
         ...state,
-        incomingEmoteBurst: this.stateSubject.value.incomingEmoteBurst
+        incomingEmoteBurst: this.stateSubject.value.incomingEmoteBurst,
+        incomingAttackWindup: this.stateSubject.value.incomingAttackWindup
       });
     });
 
@@ -112,6 +114,12 @@ export class GameService {
           ? current.emotes
           : [...current.emotes, emote].slice(-8),
         incomingEmoteBurst: emote
+      });
+    });
+
+    socket.on('attackWindup', (windup: AttackWindup) => {
+      this.patchState({
+        incomingAttackWindup: windup
       });
     });
 

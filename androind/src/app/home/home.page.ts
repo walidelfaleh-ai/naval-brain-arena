@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Capacitor } from '@capacitor/core';
 import { Subscription } from 'rxjs';
 import { CellModel } from '../models/cell.model';
 import { GameState, PlayerAvatar, TeamColor } from '../models/game-state.model';
@@ -33,21 +32,21 @@ export class HomePage implements OnInit, OnDestroy {
 
   state: GameState | null = null;
   username = '';
-  serverUrl = '';
   selectedAvatarId = this.avatarOptions[0].id;
   uploadedAvatarDataUrl: string | null = null;
-  platformLabel = Capacitor.getPlatform();
   friendCode = '';
-  lobbyStep: 'home' | 'join' = 'home';
+  lobbyStep: 'home' | 'avatar' | 'join' = 'home';
   liveSecondsLeft = 10;
   selfActiveEmote: string | null = null;
   enemyActiveEmote: string | null = null;
   sunkAnnouncement: { message: string; tone: 'enemy' | 'own' } | null = null;
   latestEnemyMiss: { row: number; col: number } | null = null;
   latestOwnMiss: { row: number; col: number } | null = null;
+  pendingShot: { row: number; col: number; team: TeamColor } | null = null;
 
   private readonly subscription = new Subscription();
   private lastIncomingBurstId: string | null = null;
+  private lastAttackWindupId: string | null = null;
   private lastGameId: string | null = null;
   private seenEmoteIds = new Set<string>();
   private timerId: ReturnType<typeof setInterval> | null = null;
@@ -61,8 +60,6 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.restoreIdentity();
-    this.serverUrl = localStorage.getItem('naval-mobile.serverUrl') || this.gameService.currentServerUrl();
-    this.gameService.configureServerUrl(this.serverUrl);
     this.gameService.connect();
 
     this.subscription.add(
@@ -74,15 +71,19 @@ export class HomePage implements OnInit, OnDestroy {
           this.lastGameId = state.gameId;
           this.seenEmoteIds.clear();
           this.lastIncomingBurstId = null;
+          this.lastAttackWindupId = null;
           this.selfActiveEmote = null;
           this.enemyActiveEmote = null;
           this.sunkAnnouncement = null;
+          this.pendingShot = null;
         }
 
         this.captureLatestTransientMarks(previous, state);
         this.captureSunkAnnouncement(previous, state);
         this.captureIncomingBurst(state);
+        this.captureAttackWindup(state);
         this.captureEnemyEmotesFromState(state);
+        this.resolvePendingShot(state);
 
         this.liveSecondsLeft = state.turnSecondsLeft;
         this.restartCountdown();
@@ -95,13 +96,6 @@ export class HomePage implements OnInit, OnDestroy {
     this.clearCountdown();
     this.clearEmoteTimers();
     this.clearSunkAnnouncementTimer();
-  }
-
-  updateServerUrl(value: string): void {
-    this.serverUrl = value;
-    localStorage.setItem('naval-mobile.serverUrl', value.trim());
-    this.gameService.configureServerUrl(value);
-    this.gameService.connect();
   }
 
   selectAvatar(avatarId: string): void {
@@ -130,6 +124,14 @@ export class HomePage implements OnInit, OnDestroy {
     this.uploadedAvatarDataUrl = null;
     this.selectedAvatarId = this.avatarOptions[0].id;
     this.persistIdentity();
+  }
+
+  openAvatarPicker(): void {
+    this.lobbyStep = 'avatar';
+  }
+
+  backToLobbyHome(): void {
+    this.lobbyStep = 'home';
   }
 
   async playRandom(): Promise<void> {
@@ -169,8 +171,35 @@ export class HomePage implements OnInit, OnDestroy {
     this.gameService.playAgain();
   }
 
+  currentAvatarPreview(): PlayerAvatar {
+    if (this.uploadedAvatarDataUrl) {
+      return {
+        id: 'upload-preview',
+        tint: '#94a3b8',
+        source: 'upload',
+        imageDataUrl: this.uploadedAvatarDataUrl
+      };
+    }
+
+    return this.avatarOptions.find((avatar) => avatar.id === this.selectedAvatarId) ?? this.avatarOptions[0];
+  }
+
+  homeErrorMessage(): string | null {
+    if (!this.state?.statusMessage) {
+      return null;
+    }
+
+    const label = (this.state.connectionLabel || '').toLowerCase();
+    return label.includes('erreur') || label.includes('hors ligne') ? this.state.statusMessage : null;
+  }
+
   fireAt(row: number, col: number): void {
     if (this.canTarget(row, col)) {
+      this.pendingShot = {
+        row,
+        col,
+        team: this.state?.selfTeam || 'BLUE'
+      };
       this.gameService.attack(row, col);
     }
   }
@@ -206,8 +235,13 @@ export class HomePage implements OnInit, OnDestroy {
     const enemy = this.enemyCell(row, col);
     const classes = ['battle-cell'];
 
-    if (this.canTarget(row, col)) {
-      classes.push('battle-cell-targetable');
+    if (this.state?.isMyTurn && !this.state?.resolvingAttack) {
+      classes.push('battle-cell-aimable');
+    }
+
+    if (this.pendingShot?.row === row && this.pendingShot?.col === col) {
+      classes.push('battle-cell-pending-shot');
+      classes.push(this.pendingShot.team === 'RED' ? 'battle-cell-pending-shot-red' : 'battle-cell-pending-shot-blue');
     }
 
     if (own?.hasShip) {
@@ -324,7 +358,6 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     this.persistIdentity();
-    this.gameService.configureServerUrl(this.serverUrl);
     this.gameService.connect();
     return trimmed;
   }
@@ -446,6 +479,17 @@ export class HomePage implements OnInit, OnDestroy {
     return this.latestOwnMiss?.row === row && this.latestOwnMiss?.col === col;
   }
 
+  private resolvePendingShot(state: GameState): void {
+    if (!this.pendingShot) {
+      return;
+    }
+
+    const enemyCell = state.enemyBoard?.rows?.[this.pendingShot.row]?.[this.pendingShot.col];
+    if (!enemyCell || enemyCell.result === 'hit' || enemyCell.result === 'miss' || state.phase !== 'battle') {
+      this.pendingShot = null;
+    }
+  }
+
   private captureIncomingBurst(current: GameState): void {
     const burst = current.incomingEmoteBurst;
     if (!burst || burst.id === this.lastIncomingBurstId) {
@@ -458,6 +502,20 @@ export class HomePage implements OnInit, OnDestroy {
     } else {
       this.showEnemyEmote(burst.emote);
     }
+  }
+
+  private captureAttackWindup(current: GameState): void {
+    const windup = current.incomingAttackWindup;
+    if (!windup || windup.id === this.lastAttackWindupId) {
+      return;
+    }
+
+    this.lastAttackWindupId = windup.id;
+    this.pendingShot = {
+      row: windup.row,
+      col: windup.col,
+      team: windup.team
+    };
   }
 
   private captureEnemyEmotesFromState(current: GameState): void {

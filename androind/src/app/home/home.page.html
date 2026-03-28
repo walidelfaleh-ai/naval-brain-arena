@@ -1,74 +1,40 @@
-<ion-header class="mobile-header">
-  <ion-toolbar>
-    <ion-title>Naval Brain Arena</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true" class="mobile-content">
   <div class="screen-shell">
     <ng-container [ngSwitch]="state?.phase || 'home'">
       <section *ngSwitchCase="'home'" class="lobby-screen">
         <div class="hero-card">
-          <p class="hero-kicker">Duel tactique mobile</p>
-          <h1>Bateau Blue VS Bateau Rouge</h1>
-          <p class="hero-copy">Pseudo, avatar, match aleatoire, salle ami et bataille temps reel.</p>
-          <p class="platform-badge">Platform: {{ platformLabel }}</p>
+          <h1>Naval Brain Arena</h1>
+          <img class="hero-visual-image" src="assets/images/lobby-battle-hero.svg" alt="Bataille Blue versus Red" />
         </div>
 
         <div class="panel-card">
-          <div class="status-banner" *ngIf="state?.statusMessage">
-            <strong>{{ state?.connectionLabel }}</strong>
-            <span>{{ state?.statusMessage }}</span>
+          <div class="status-banner status-banner-error" *ngIf="homeErrorMessage()">
+            <strong>Erreur reseau</strong>
+            <span>{{ homeErrorMessage() }}</span>
           </div>
 
-          <ion-item lines="none" class="field-item">
-            <ion-input
-              label="Pseudo"
-              labelPlacement="stacked"
-              maxlength="18"
-              placeholder="Capitaine Sam"
-              [(ngModel)]="username">
-            </ion-input>
-          </ion-item>
+          <div class="action-stack" *ngIf="lobbyStep === 'home'; else lobbySecondaryStep">
+            <ion-item lines="none" class="field-item">
+              <ion-input
+                label="Pseudo"
+                labelPlacement="stacked"
+                maxlength="18"
+                placeholder="Capitaine Sam"
+                [(ngModel)]="username">
+              </ion-input>
+            </ion-item>
 
-          <ion-item lines="none" class="field-item">
-            <ion-input
-              label="Serveur Socket"
-              labelPlacement="stacked"
-              placeholder="http://localhost:3000"
-              [(ngModel)]="serverUrl"
-              (ionBlur)="updateServerUrl(serverUrl)">
-            </ion-input>
-          </ion-item>
+            <button type="button" class="avatar-entry-button" (click)="openAvatarPicker()">
+              <span class="avatar-entry-preview" [style.--avatar-tint]="currentAvatarPreview().tint">
+                <img *ngIf="currentAvatarPreview().imageDataUrl; else avatarEntryIcon" [src]="currentAvatarPreview().imageDataUrl" alt="Avatar choisi" />
+                <ng-template #avatarEntryIcon>{{ currentAvatarPreview().icon }}</ng-template>
+              </span>
+              <span class="avatar-entry-text">
+                <strong>Avatar</strong>
+                <small>Choisir un avatar ou une photo</small>
+              </span>
+            </button>
 
-          <div class="avatar-block">
-            <div class="avatar-grid">
-              <button
-                *ngIf="uploadedAvatarDataUrl"
-                type="button"
-                class="avatar-choice avatar-choice-upload avatar-choice-active"
-                (click)="clearUploadedAvatar()">
-                <img [src]="uploadedAvatarDataUrl" alt="Avatar perso" />
-              </button>
-
-              <button
-                *ngFor="let avatar of avatarOptions"
-                type="button"
-                class="avatar-choice"
-                [class.avatar-choice-active]="selectedAvatarId === avatar.id"
-                [style.--avatar-tint]="avatar.tint"
-                (click)="selectAvatar(avatar.id)">
-                <span>{{ avatar.icon }}</span>
-              </button>
-            </div>
-
-            <label class="upload-avatar-chip">
-              <input type="file" accept="image/*" (change)="onAvatarFileSelected($event)" />
-              <span>{{ uploadedAvatarDataUrl ? 'Changer la photo' : 'Telecharger une photo' }}</span>
-            </label>
-          </div>
-
-          <div class="action-stack" *ngIf="lobbyStep === 'home'; else joinFriendStep">
             <ion-button expand="block" class="action-button action-button-blue" [disabled]="!username.trim()" (click)="playRandom()">
               Jouer
             </ion-button>
@@ -80,37 +46,79 @@
             </ion-button>
           </div>
 
-          <ng-template #joinFriendStep>
-            <div class="action-stack">
-              <ion-item lines="none" class="field-item">
-                <ion-input
-                  label="Code ami"
-                  labelPlacement="stacked"
-                  maxlength="6"
-                  placeholder="ABC123"
-                  [(ngModel)]="friendCode">
-                </ion-input>
-              </ion-item>
-              <ion-button expand="block" class="action-button action-button-amber" [disabled]="!username.trim() || friendCode.trim().length !== 6" (click)="joinFriendMatch()">
-                Entrer dans la salle
-              </ion-button>
-              <ion-button expand="block" fill="outline" class="action-button action-button-outline" (click)="lobbyStep = 'home'">
-                Retour
-              </ion-button>
-            </div>
+          <ng-template #lobbySecondaryStep>
+            <ng-container [ngSwitch]="lobbyStep">
+              <div *ngSwitchCase="'avatar'" class="action-stack">
+                <div class="avatar-block avatar-block-step">
+                  <div class="avatar-grid">
+                    <button
+                      *ngIf="uploadedAvatarDataUrl"
+                      type="button"
+                      class="avatar-choice avatar-choice-upload avatar-choice-active"
+                      (click)="clearUploadedAvatar()">
+                      <img [src]="uploadedAvatarDataUrl" alt="Avatar perso" />
+                    </button>
+
+                    <button
+                      *ngFor="let avatar of avatarOptions"
+                      type="button"
+                      class="avatar-choice"
+                      [class.avatar-choice-active]="selectedAvatarId === avatar.id"
+                      [style.--avatar-tint]="avatar.tint"
+                      (click)="selectAvatar(avatar.id)">
+                      <span>{{ avatar.icon }}</span>
+                    </button>
+                  </div>
+
+                  <label class="upload-avatar-chip">
+                    <input type="file" accept="image/*" (change)="onAvatarFileSelected($event)" />
+                    <span>{{ uploadedAvatarDataUrl ? 'Changer la photo' : 'Telecharger une photo' }}</span>
+                  </label>
+                </div>
+
+                <ion-button expand="block" fill="outline" class="action-button action-button-outline" (click)="backToLobbyHome()">
+                  Retour
+                </ion-button>
+              </div>
+
+              <div *ngSwitchCase="'join'" class="action-stack">
+                <ion-item lines="none" class="field-item">
+                  <ion-input
+                    label="Code ami"
+                    labelPlacement="stacked"
+                    maxlength="6"
+                    placeholder="ABC123"
+                    [(ngModel)]="friendCode">
+                  </ion-input>
+                </ion-item>
+                <ion-button expand="block" class="action-button action-button-amber" [disabled]="!username.trim() || friendCode.trim().length !== 6" (click)="joinFriendMatch()">
+                  Entrer dans la salle
+                </ion-button>
+                <ion-button expand="block" fill="outline" class="action-button action-button-outline" (click)="backToLobbyHome()">
+                  Retour
+                </ion-button>
+              </div>
+            </ng-container>
           </ng-template>
         </div>
       </section>
 
       <section *ngSwitchCase="'matching'" class="matching-screen">
         <div class="hero-card matching-card">
-          <ion-spinner name="crescent"></ion-spinner>
-          <p class="hero-kicker">{{ state?.matchMode === 'private' ? 'Salle privee' : 'Recherche' }}</p>
-          <h2>{{ state?.statusMessage }}</h2>
-          <p>{{ state?.username }}</p>
+          <div class="matching-radar" aria-hidden="true">
+            <span class="matching-radar-ring matching-radar-ring-1"></span>
+            <span class="matching-radar-ring matching-radar-ring-2"></span>
+            <span class="matching-radar-ring matching-radar-ring-3"></span>
+            <span class="matching-radar-sweep"></span>
+            <span class="matching-radar-dot"></span>
+          </div>
+          <h2 class="matching-title">{{ state?.matchMode === 'private' ? 'Salle ami' : 'Recherche en cours' }}</h2>
           <div *ngIf="state?.matchMode === 'private' && state?.matchCode" class="code-pill">
             {{ state?.matchCode }}
           </div>
+          <ion-button fill="outline" class="action-button action-button-outline matching-cancel-button" (click)="quitGame()">
+            Annuler
+          </ion-button>
         </div>
       </section>
 
@@ -184,7 +192,7 @@
                 *ngFor="let colLabel of state?.colLabels || []; let col = index; trackBy: trackByIndex"
                 type="button"
                 [ngClass]="cellClasses(row, col)"
-                [disabled]="!canTarget(row, col)"
+                [disabled]="state?.phase !== 'battle' || !state?.isMyTurn || !!state?.resolvingAttack"
                 (click)="fireAt(row, col)">
                 <span [ngClass]="enemyMarkerClass(row, col)">{{ enemyMarker(row, col) }}</span>
                 <span [ngClass]="incomingMarkerClass(row, col)">{{ incomingMarker(row, col) }}</span>

@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
+  private static readonly PUBLIC_SERVER_URL = 'https://naval-brain-arena-server.onrender.com';
   private socket: Socket | null = null;
   private currentUrl = this.defaultUrl();
 
@@ -48,6 +49,6 @@ export class SocketService {
   }
 
   private defaultUrl(): string {
-    return Capacitor.getPlatform() === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
+    return SocketService.PUBLIC_SERVER_URL;
   }
 }

@@ -16,19 +16,6 @@
   color: var(--text-main);
 }
 
-ion-toolbar {
-  --background: rgba(6, 13, 26, 0.95);
-  --color: #f8fafc;
-  --min-height: 48px;
-}
-
-ion-title {
-  text-align: center;
-  letter-spacing: 0.14em;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-}
-
 .mobile-content {
   --background: transparent;
 }
@@ -62,7 +49,15 @@ ion-title {
   text-align: center;
 }
 
-.hero-kicker,
+.hero-visual-image {
+  display: block;
+  width: min(100%, 320px);
+  margin: 12px auto 0;
+  border-radius: 20px;
+  border: 1px solid rgba(91, 155, 255, 0.18);
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.28);
+}
+
 .team-pill,
 .turn-label {
   margin: 0 0 6px;
@@ -87,14 +82,6 @@ ion-title {
   color: var(--text-soft);
 }
 
-.platform-badge {
-  margin: 8px 0 0;
-  color: #9fd9ff;
-  font-size: 0.66rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .panel-card {
   padding: 12px;
 }
@@ -108,6 +95,11 @@ ion-title {
   border-radius: 14px;
   background: rgba(255, 111, 138, 0.12);
   border: 1px solid rgba(255, 111, 138, 0.28);
+}
+
+.status-banner-error {
+  background: rgba(255, 111, 138, 0.12);
+  border-color: rgba(255, 111, 138, 0.28);
 }
 
 .status-banner strong {
@@ -131,6 +123,10 @@ ion-title {
 
 .avatar-block {
   margin: 8px 0 2px;
+}
+
+.avatar-block-step {
+  margin-top: 0;
 }
 
 .avatar-grid {
@@ -178,6 +174,54 @@ ion-title {
   font-weight: 600;
 }
 
+.avatar-entry-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(91, 155, 255, 0.22);
+  background: rgba(15, 23, 42, 0.86);
+  color: var(--text-main);
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.avatar-entry-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.35rem;
+  background: radial-gradient(circle, var(--avatar-tint, rgba(53, 184, 255, 0.34)), rgba(15, 23, 42, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.avatar-entry-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-entry-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.avatar-entry-text strong {
+  font-size: 0.95rem;
+}
+
+.avatar-entry-text small {
+  color: var(--text-soft);
+  font-size: 0.74rem;
+}
+
 .upload-avatar-chip input {
   display: none;
 }
@@ -217,12 +261,87 @@ ion-title {
 }
 
 .matching-card {
-  min-height: 38vh;
+  width: min(100%, 340px);
+  min-height: 52vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.matching-screen {
+  min-height: calc(100vh - 20px);
+  justify-content: center;
+  align-items: center;
+}
+
+.matching-title {
+  margin: 0;
+  font-size: 1.04rem;
+  line-height: 1.08;
+}
+
+.matching-radar {
+  width: 124px;
+  height: 124px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(53, 184, 255, 0.12) 0 26%, transparent 27% 100%),
+    radial-gradient(circle at center, rgba(16, 185, 129, 0.06), rgba(6, 13, 26, 0.1) 68%, transparent 69%);
+  overflow: hidden;
+}
+
+.matching-radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(116, 226, 255, 0.34);
+  animation: radar-ping 1.8s infinite ease-out;
+}
+
+.matching-radar-ring-1 {
+  width: 42px;
+  height: 42px;
+}
+
+.matching-radar-ring-2 {
+  width: 74px;
+  height: 74px;
+  animation-delay: 0.3s;
+}
+
+.matching-radar-ring-3 {
+  width: 106px;
+  height: 106px;
+  animation-delay: 0.6s;
+}
+
+.matching-radar-sweep {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(53, 184, 255, 0.22), rgba(53, 184, 255, 0.02) 26%, transparent 55%);
+  animation: radar-sweep 2.3s linear infinite;
+}
+
+.matching-radar-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #7ef8ff 0%, #35b8ff 58%, #0b6ca8 100%);
+  box-shadow: 0 0 20px rgba(116, 226, 255, 0.4);
+}
+
+.matching-cancel-button {
+  margin-top: 2px;
+  width: min(170px, 100%);
 }
 
 .code-pill {
@@ -464,10 +583,6 @@ ion-title {
   padding: 0;
 }
 
-.battle-cell-targetable {
-  border-color: rgba(116, 226, 255, 0.55);
-}
-
 .battle-cell-own-ship-blue {
   border-color: rgba(53, 184, 255, 0.85);
   background: rgba(53, 184, 255, 0.14);
@@ -490,6 +605,28 @@ ion-title {
 
 .battle-cell-miss {
   background: rgba(16, 30, 54, 0.95);
+}
+
+.battle-cell-aimable {
+  cursor: pointer;
+  border-color: rgba(116, 226, 255, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(116, 226, 255, 0.08);
+}
+
+.battle-cell-pending-shot {
+  z-index: 1;
+  border-color: transparent;
+  animation: pending-shot-pop 0.36s ease-out;
+}
+
+.battle-cell-pending-shot-blue {
+  background: rgba(53, 184, 255, 0.34);
+  box-shadow: 0 0 14px rgba(53, 184, 255, 0.22);
+}
+
+.battle-cell-pending-shot-red {
+  background: rgba(255, 111, 138, 0.34);
+  box-shadow: 0 0 14px rgba(255, 111, 138, 0.22);
 }
 
 .enemy-marker {
@@ -559,6 +696,38 @@ ion-title {
   flex-direction: column;
   gap: 8px;
   margin-top: 12px;
+}
+
+@keyframes radar-ping {
+  0% {
+    opacity: 0.92;
+    transform: scale(0.72);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+
+@keyframes radar-sweep {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pending-shot-pop {
+  0% {
+    transform: scale(1);
+  }
+  52% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1.02);
+  }
 }
 
 @media (min-width: 390px) {

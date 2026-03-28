@@ -34,6 +34,13 @@ export interface PlayerAvatar {
   imageDataUrl?: string;
 }
 
+export interface AttackWindup {
+  id: string;
+  row: number;
+  col: number;
+  team: TeamColor;
+}
+
 export interface GameState {
   gameId: string | null;
   phase: GamePhase;
@@ -60,6 +67,7 @@ export interface GameState {
   enemyFleetSummary: FleetSummaryItem[];
   emotes: EmoteMessage[];
   incomingEmoteBurst: EmoteMessage | null;
+  incomingAttackWindup: AttackWindup | null;
   lastSelfAttack: { row: number; col: number } | null;
   turnSecondsLeft: number;
   selfSkips: number;

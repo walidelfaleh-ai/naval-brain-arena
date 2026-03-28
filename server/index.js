@@ -533,6 +533,20 @@ function broadcastEmote(game, emoteEvent) {
   }
 }
 
+function broadcastAttackWindup(game, attackWindup) {
+  for (const team of ['BLUE', 'RED']) {
+    const player = game.players[team];
+    if (!player || player.isBot) {
+      continue;
+    }
+
+    const socket = io.sockets.sockets.get(player.socketId);
+    if (socket) {
+      socket.emit('attackWindup', attackWindup);
+    }
+  }
+}
+
 function buildClientState(game, team) {
   const enemyTeam = team === 'BLUE' ? 'RED' : 'BLUE';
   const ownPlayer = game.players[team];
@@ -911,6 +925,12 @@ function resolveAttack(game, attackingTeam, row, col) {
   clearTurnTimer(game);
   clearResolveTimer(game);
   game.resolvingAttack = true;
+  broadcastAttackWindup(game, {
+    id: `windup-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    row,
+    col,
+    team: attackingTeam
+  });
   broadcastGameState(game);
   game.resolveTimer = setTimeout(() => {
     const latest = games.get(game.id);

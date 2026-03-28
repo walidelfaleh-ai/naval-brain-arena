@@ -1,0 +1,73 @@
+<svg width="1200" height="680" viewBox="0 0 1200 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="600" y1="0" x2="600" y2="680" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1B33"/>
+      <stop offset="1" stop-color="#050B16"/>
+    </linearGradient>
+    <radialGradient id="burst" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(603 278) rotate(90) scale(122 122)">
+      <stop stop-color="#FFE089"/>
+      <stop offset="0.56" stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#EF4444"/>
+    </radialGradient>
+    <linearGradient id="blueShip" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6FE8FF"/>
+      <stop offset="1" stop-color="#236DFF"/>
+    </linearGradient>
+    <linearGradient id="redShip" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FF8AA2"/>
+      <stop offset="1" stop-color="#D92C48"/>
+    </linearGradient>
+    <filter id="glowBlue" x="0" y="0" width="1200" height="680" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <filter id="softGlow" x="0" y="0" width="1200" height="680" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="34"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="680" rx="42" fill="url(#bg)"/>
+  <circle cx="220" cy="126" r="118" fill="#2AAAFD" fill-opacity="0.16" filter="url(#softGlow)"/>
+  <circle cx="973" cy="168" r="106" fill="#FF5E7E" fill-opacity="0.14" filter="url(#softGlow)"/>
+
+  <g opacity="0.35">
+    <circle cx="600" cy="278" r="168" stroke="#49D9FF" stroke-opacity="0.18" stroke-width="2"/>
+    <circle cx="600" cy="278" r="224" stroke="#49D9FF" stroke-opacity="0.12" stroke-width="2"/>
+    <path d="M131 524C297 472 418 462 595 472C772 482 915 523 1070 566" stroke="#154D82" stroke-width="3" stroke-linecap="round"/>
+    <path d="M152 556C285 520 408 513 583 519C758 525 886 552 1032 596" stroke="#185E9B" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+
+  <g>
+    <ellipse cx="304" cy="398" rx="124" ry="44" fill="#2B82D6" fill-opacity="0.18" filter="url(#glowBlue)"/>
+    <path d="M150 384C150 384 233 314 360 314C434 314 503 349 533 384C492 415 424 444 338 446C232 449 175 416 150 384Z" fill="url(#blueShip)"/>
+    <rect x="270" y="255" width="80" height="52" rx="18" fill="url(#blueShip)"/>
+    <rect x="334" y="236" width="56" height="30" rx="10" fill="url(#blueShip)"/>
+    <rect x="406" y="282" width="78" height="14" rx="7" fill="#EAF8FF"/>
+    <circle cx="244" cy="361" r="14" fill="#EAF8FF" fill-opacity="0.22"/>
+    <circle cx="218" cy="333" r="22" fill="#EAF8FF" fill-opacity="0.16"/>
+    <circle cx="188" cy="354" r="18" fill="#EAF8FF" fill-opacity="0.12"/>
+  </g>
+
+  <g>
+    <ellipse cx="900" cy="405" rx="122" ry="42" fill="#D53F66" fill-opacity="0.16" filter="url(#softGlow)"/>
+    <path d="M1058 392C1058 392 975 322 848 322C774 322 705 357 675 392C716 423 784 452 870 454C976 457 1033 424 1058 392Z" fill="url(#redShip)"/>
+    <rect x="846" y="263" width="80" height="52" rx="18" fill="url(#redShip)"/>
+    <rect x="806" y="244" width="56" height="30" rx="10" fill="url(#redShip)"/>
+    <rect x="716" y="289" width="78" height="14" rx="7" fill="#FFECEF"/>
+    <circle cx="963" cy="367" r="14" fill="#FFF1F4" fill-opacity="0.22"/>
+    <circle cx="990" cy="337" r="22" fill="#FFF1F4" fill-opacity="0.16"/>
+    <circle cx="1019" cy="358" r="18" fill="#FFF1F4" fill-opacity="0.12"/>
+  </g>
+
+  <g>
+    <circle cx="603" cy="278" r="92" fill="url(#burst)"/>
+    <circle cx="603" cy="278" r="124" stroke="#FDBA74" stroke-opacity="0.28" stroke-width="12"/>
+    <text x="603" y="296" text-anchor="middle" fill="#111827" font-family="Arial, sans-serif" font-size="54" font-weight="900" letter-spacing="8">VS</text>
+  </g>
+
+  <g opacity="0.46">
+    <circle cx="270" cy="516" r="4" fill="#67E8F9"/>
+    <circle cx="872" cy="133" r="5" fill="#F9A8D4"/>
+    <circle cx="965" cy="522" r="6" fill="#67E8F9"/>
+    <circle cx="503" cy="102" r="3" fill="#FDE68A"/>
+  </g>
+</svg>
